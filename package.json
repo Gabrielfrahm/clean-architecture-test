@@ -4,7 +4,12 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "test": "jest",
+    "test": "jest --passWithNoTests --silent --noStackTrace --runInBand",
+    "test:verbose": "jest --passWithNoTests --runInBand",
+    "test:unit": "jest --passWithNoTests --silent --noStackTrace --runInBand --watch -c jest-unit-config.ts",
+    "test:integration": "jest --passWithNoTests --silent --noStackTrace --runInBand --watch -c jest-integration-config.ts",
+    "test:staged": "jest --passWithNoTests --silent --noStackTrace --runInBand --findRelatedTests",
+    "test:ci": "jest --passWithNoTests --silent --noStackTrace --runInBand --coverage",
     "prepare": "husky install"
   },
   "devDependencies": {
@@ -20,6 +25,7 @@
     "jest": "^28.1.1",
     "lint-staged": "^13.0.2",
     "prettier": "^2.7.1",
+    "ts-jest": "^28.0.5",
     "ts-node": "^10.8.1",
     "typescript": "^4"
   }
