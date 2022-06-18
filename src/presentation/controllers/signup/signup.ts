@@ -1,21 +1,34 @@
 import { InvalidParamError, MissingParamError } from '../../error'
-import { BadRequest } from '../../helper/http-helper'
-import { IController, IHttpRequest, IHttpResponse } from '../../protocols'
+import { BadRequest, ok, serverError } from '../../helper/http-helper'
+import { EmailValidator, IController, IHttpRequest, IHttpResponse } from '../../protocols'
 
 export class SignUpController implements IController {
+  constructor (private readonly emailValidator: EmailValidator) {
+    this.emailValidator = emailValidator
+  }
+
   public async handle (httpRequest: IHttpRequest): Promise<IHttpResponse> {
-    const requiredFields = ['name', 'email', 'phone', 'password', 'passwordConfirmation']
-    for (const field of requiredFields) {
-      if (!httpRequest.body[field]) {
-        return BadRequest(new MissingParamError(field))
-      }
+    try {
+      const requiredFields = ['name', 'email', 'phone', 'password', 'passwordConfirmation']
+      for (const field of requiredFields) {
+        if (!httpRequest.body[field]) {
+          return BadRequest(new MissingParamError(field))
+        }
 
-      const { password, passwordConfirmation } = httpRequest.body
+        const { email, password, passwordConfirmation } = httpRequest.body
 
-      if (password !== passwordConfirmation) {
-        return BadRequest(new InvalidParamError('passwordConfirmation'))
+        if (password !== passwordConfirmation) {
+          return BadRequest(new InvalidParamError('passwordConfirmation'))
+        }
+        const isValidEmail = this.emailValidator.isValid(email)
+
+        if (!isValidEmail) {
+          return BadRequest(new InvalidParamError('email'))
+        }
       }
+      return ok(httpRequest)
+    } catch (error) {
+      return serverError()
     }
-    return await Promise.resolve({ statusCode: 200, body: httpRequest })
   }
 }
