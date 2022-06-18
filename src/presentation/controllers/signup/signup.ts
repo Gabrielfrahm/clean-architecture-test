@@ -1,4 +1,4 @@
-import { MissingParamError } from '../../error'
+import { InvalidParamError, MissingParamError } from '../../error'
 import { BadRequest } from '../../helper/http-helper'
 import { IController, IHttpRequest, IHttpResponse } from '../../protocols'
 
@@ -8,6 +8,12 @@ export class SignUpController implements IController {
     for (const field of requiredFields) {
       if (!httpRequest.body[field]) {
         return BadRequest(new MissingParamError(field))
+      }
+
+      const { password, passwordConfirmation } = httpRequest.body
+
+      if (password !== passwordConfirmation) {
+        return BadRequest(new InvalidParamError('passwordConfirmation'))
       }
     }
     return await Promise.resolve({ statusCode: 200, body: httpRequest })
